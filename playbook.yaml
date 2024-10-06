@@ -6,8 +6,9 @@
   collections:
     - amazon.aws
   vars:
-    ansible_python_interpreter: /usr/bin/python3
+    # ansible_python_interpreter: /usr/bin/python3
     instance_name: "ec2-for-jenkins"
+    pemFile: {{ pemFile }}
 
   tasks:
     - name: Get EC2 instance details by tag name
@@ -43,7 +44,7 @@
     - name: Add EC2 instance to the host group
       add_host:
         name: "{{ ec2_ip }}"
-        ansible_ssh_private_key_file: "/home/suraj/first_ec2.pem"
+        ansible_ssh_private_key_file: {{ pemFile }}
         ansible_user: "ubuntu"
 
     - name: Wait for EC2 instance to be ready for SSH
