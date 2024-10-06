@@ -6,7 +6,7 @@
   collections:
     - amazon.aws
   vars:
-    # ansible_python_interpreter: /usr/bin/python3
+    ansible_python_interpreter: /usr/bin/python3
     instance_name: "ec2-for-jenkins"
     pemFile: "{{ pemFile }}"
 
