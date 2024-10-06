@@ -7,8 +7,6 @@ resource "aws_instance" "web" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  key_name      = "first_ec2"   # The name of your key pair
-
   tags = {
     Name = "ec2-for-jenkins"
   }
