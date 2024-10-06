@@ -1,3 +1,8 @@
+provider "aws" {
+    access_key = var.access_key
+    secret_key = var.secret_key
+    region = var.region
+}
 resource "local_file" "foo" {
   content  = "I love myself :)"
   filename = "my_special_file"
