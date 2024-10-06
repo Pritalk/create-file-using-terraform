@@ -8,7 +8,7 @@
   vars:
     # ansible_python_interpreter: /usr/bin/python3
     instance_name: "ec2-for-jenkins"
-    pemFile: {{ pemFile }}
+    pemFile: "{{ pemFile }}"
 
   tasks:
     - name: Get EC2 instance details by tag name
