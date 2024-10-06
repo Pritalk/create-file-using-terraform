@@ -1,0 +1,75 @@
+---
+- name: Retrieve EC2 instance details and install apache
+  hosts: localhost
+  gather_facts: false
+  connection: local
+  collections:
+    - amazon.aws
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    instance_name: "ec2-for-jenkins"
+
+  tasks:
+    - name: Get EC2 instance details by tag name
+      amazon.aws.ec2_instance_info:
+        region: "us-east-1"
+        filters:
+          "tag:Name": "{{ instance_name }}"
+      register: ec2_info
+
+    - name: Debug EC2 instance info
+      debug:
+        var: ec2_info
+
+    - name: Debug first EC2 instance details
+      debug:
+        var: ec2_info.instances[0]
+      when: ec2_info.instances | length > 0
+
+    - name: Set EC2 instance public or private IP for SSH access
+      set_fact:
+        ec2_ip: "{{ ec2_info.instances[0].public_ip_address | default(ec2_info.instances[0].private_ip_address) }}"
+      when: ec2_info.instances | length > 0
+
+    - name: Fail if no EC2 instances found
+      fail:
+        msg: "No EC2 instances found with the specified tag"
+      when: ec2_info.instances | length == 0
+
+    - name: Debug the ec2_ip variable
+      debug:
+        var: ec2_ip
+    
+    - name: Add EC2 instance to the host group
+      add_host:
+        name: "{{ ec2_ip }}"
+        ansible_ssh_private_key_file: "/home/suraj/first_ec2.pem"
+        ansible_user: "ubuntu"
+
+    - name: Wait for EC2 instance to be ready for SSH
+      wait_for:
+        host: "{{ ec2_ip }}"
+        port: 22
+        timeout: 300
+        state: started
+
+
+- name: Install Apache2 on EC2 Ubuntu Instance
+  hosts: all  # This will now include the dynamically added EC2 instance
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Update apt package index
+      apt:        
+        update_cache: yes
+    
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Ensure Apache2 is running
+      service:
+        name: apache2
+        state: started
+        enabled: yes
