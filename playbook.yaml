@@ -59,6 +59,8 @@
   hosts: all  # This will now include the dynamically added EC2 instance
   gather_facts: false
   become: true
+  vars:
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
   tasks:
     - name: Update apt package index
       apt:        
